@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>打砖块</title>
+<style>
+body{margin:0;background:#111;display:flex;justify-content:center;align-items:center;height:100vh;color:#fff;font-family:sans-serif}
+canvas{border:2px solid #fff}
+#info{position:absolute;top:10px;text-align:center}
+</style>
+</head>
+<body>
+<div id="info">鼠标移动控制挡板 | 点击开始</div>
+<canvas id="c" width="480" height="360"></canvas>
+<script>
+const c=document.getElementById('c'),x=c.getContext('2d')
+let bx=240,by=300,bdx=3,bdy=-3,px=200,score=0,started=false,bricks=[]
+for(let i=0;i<6;i++)for(let j=0;j<10;j++)bricks.push({x:j*44+20,y:i*20+40,w:40,h:16,active:true})
+document.addEventListener('mousemove',e=>{px=e.clientX-c.getBoundingClientRect().left-40;if(px<0)px=0;if(px>400)px=400})
+document.addEventListener('click',()=>started=true)
+function loop(){
+  x.fillStyle='#111';x.fillRect(0,0,480,360)
+  x.fillStyle='#fff';x.fillRect(px,340,80,10)
+  x.beginPath();x.arc(bx,by,6,0,Math.PI*2);x.fill()
+  bricks.forEach(b=>{if(b.active){x.fillStyle='hsl('+((b.y+b.x)%360)+',70%,60%)';x.fillRect(b.x,b.y,b.w,b.h)}})
+  if(!started){x.fillStyle='#fff';x.font='20px sans-serif';x.textAlign='center';x.fillText('点击开始',240,200);requestAnimationFrame(loop);return}
+  bx+=bdx;by+=bdy
+  if(bx<6||bx>474)bdx=-bdx
+  if(by<6)bdy=-bdy
+  if(by>340&&bx>px&&bx<px+80){bdy=-3-Math.random()*2;score+=10}
+  if(by>360){bx=240;by=300;bdy=-3;started=false;score=0;bricks.forEach(b=>b.active=true)}
+  bricks.forEach(b=>{if(b.active&&bx>b.x&&bx<b.x+b.w&&by>b.y&&by<b.y+b.h){b.active=false;bdy=-bdy;score+=50}})
+  x.fillStyle='#fff';x.font='16px sans-serif';x.textAlign='left';x.fillText('得分: '+score,10,25)
+  requestAnimationFrame(loop)
+}
+loop()
+</script>
+</body>
+</html>
